@@ -1,7 +1,9 @@
-from flask import Flask, render_template,request
+from flask import Flask, render_template,request,redirect
 from flaskext.mysql import MySQL
 from pymysql import cursors
 from datetime import datetime
+
+from werkzeug.utils import redirect
 
 
 
@@ -16,13 +18,23 @@ mysql.init_app(app)
 
 @app.route("/")
 def index():
-    sql = "INSERT INTO `empleados` (`id`, `nombre`, `correo`, `foto`) VALUES (NULL, 'Gonzalo', 'Gonzalo@algo.com', 'fotomardel.jpg');"
+    sql = "SELECT * FROM empleados;"
     conn=mysql.connect()
     cursor=conn.cursor()
     cursor.execute(sql)
+    empleados = cursor.fetchall()
+    print(empleados)
     conn.commit()
     
-    return render_template("empleados/index.html")
+    return render_template("empleados/index.html", empleados=empleados)
+
+@app.route("/destroy/<int:id>")
+def destroy(id):
+    conn = mysql.connect()
+    cursor = conn.cursor()
+    cursor.execute("DELETE FROM empleados WHERE id=%s", (id))
+    conn.commit()
+    return redirect("/")
 
 @app.route("/juancarlos")
 def juanca():
