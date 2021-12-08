@@ -1,4 +1,5 @@
-from flask import Flask,render_template,request,redirect,send_from_directory
+from flask import Flask,render_template,request,redirect,send_from_directory, flash
+from flask.helpers import url_for
 from flaskext.mysql import MySQL
 from pymysql import cursors
 from datetime import datetime
@@ -9,6 +10,7 @@ from werkzeug.utils import redirect
 
 
 app = Flask(__name__)
+app.secret_key="Codoacodo"
 
 mysql = MySQL()
 app.config['MYSQL_DATABASE_HOST'] = "localhost"
@@ -82,11 +84,6 @@ def update():
     conn.commit()
     return redirect("/")
 
-@app.route("/juancarlos")
-def juanca():
-    return render_template("empleados/indexjuan.html")
-
-
 @app.route("/create")
 def create():
     return render_template("empleados/create.html")
@@ -97,6 +94,10 @@ def storage():
     _nombre = request.form['txtNombre']
     _correo = request.form['txtCorreo']
     _foto   = request.files['txtFoto']
+
+    if _nombre==""  or _correo=="" or _foto=="":
+        flash("Falta agregar algún dato")
+        return redirect(url_for("create")) 
 
     now = datetime.now()
     tiempo = now.strftime("%Y%H%M%S")
